@@ -1,0 +1,42 @@
+# Python/cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+*.bak
+*.swp
+
+# Logs
+*.log
+results/logs/*.tmp
+
+# Generated heavy simulation artifacts
+*.odb
+*.cae
+*.jnl
+*.sim
+*.sta
+*.msg
+*.dat
+*.inp~
+*.mphbin
+*.mph.lock
+
+# Large generated arrays can be regenerated from configs
+data/processed/**/*.npy
+data/processed/**/*.npz
+data/processed/**/*.h5
+data/processed/**/*.hdf5
+
