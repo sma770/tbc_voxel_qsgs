@@ -1,0 +1,77 @@
+{
+  "schema_version": "rve-binary-voxel-v1",
+  "case_id": "anisotropic_correlated_p10_seed20260609",
+  "method": "anisotropic_correlated",
+  "generated_at_utc": "2026-06-09T07:54:02.497780+00:00",
+  "config_path": "configs/voxel_rve_minimal_v1.json",
+  "array_path": "data/processed/rve/voxel_minimal/anisotropic_correlated/anisotropic_correlated_p10_seed20260609.npz",
+  "metadata_path": "data/metadata/rve/voxel_minimal/anisotropic_correlated/anisotropic_correlated_p10_seed20260609_metadata.json",
+  "figure_paths": [
+    "results/figures/rve_preview/anisotropic_correlated/anisotropic_correlated_p10_seed20260609_slices.png"
+  ],
+  "phase_convention": {
+    "0": "pore",
+    "1": "solid"
+  },
+  "array": {
+    "name": "rve_zyx",
+    "axis_order": "zyx",
+    "shape_zyx": [
+      64,
+      64,
+      64
+    ],
+    "dtype": "uint8"
+  },
+  "geometry": {
+    "rve_size_um_xyz": [
+      40.0,
+      40.0,
+      40.0
+    ],
+    "grid_shape_xyz": [
+      64,
+      64,
+      64
+    ],
+    "voxel_size_um_xyz": [
+      0.625,
+      0.625,
+      0.625
+    ],
+    "length_unit": "um"
+  },
+  "porosity": {
+    "target": 0.1,
+    "actual": 0.09999847412109375,
+    "absolute_error": 1.5258789062555511e-06,
+    "pore_voxels": 26214,
+    "solid_voxels": 235930
+  },
+  "random": {
+    "seed": 20260609,
+    "deterministic_given_seed": true
+  },
+  "generation_parameters": {
+    "correlation_length_um_xyz": [
+      1.5,
+      1.5,
+      5.0
+    ],
+    "boundary_mode": "periodic_wrap",
+    "threshold_rule": "exact_lowest_fraction"
+  },
+  "runtime_seconds": 0.01012369990348816,
+  "validation": {
+    "binary_values": [
+      0,
+      1
+    ],
+    "shape_matches_config": true,
+    "actual_porosity_matches_requested_count": true
+  },
+  "known_limitations": [
+    "This is a synthetic binary voxel RVE, not yet validated against SEM/CT data.",
+    "The current output is for morphology and later homogenization input; it does not compute AHM results."
+  ]
+}

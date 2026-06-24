@@ -1,0 +1,19 @@
+model_id: tbc_wedge_crack_local_v1
+array_path: data/processed/tbc_wedge_crack_local_v1/tbc_wedge_crack_local_v1_labels_zyx_uint8.npy
+array_shape_zyx: [1450, 101, 3200]
+voxel_size_um: 1.0
+runtime_seconds: 2.739
+geometry_checks_passed: True
+top_width_voxels: 30
+bottom_width_voxels: 5
+depth_voxels: 240
+length_voxels: 3000
+included_angle_from_widths_deg: 5.9629
+phase_counts:
+  0 (crack/air): 12600000
+  1 (YSZ ceramic): 84360000
+  2 (MCrAlY bond coat): 48480000
+  3 (Inconel substrate): 323200000
+figures:
+  results/figures/tbc_wedge_crack_local_v1_sections.png
+  results/figures/tbc_wedge_crack_local_v1_geometry_preview.png

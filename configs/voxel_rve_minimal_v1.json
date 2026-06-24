@@ -1,0 +1,32 @@
+{
+  "batch_id": "voxel_rve_minimal_v1",
+  "description": "Minimal binary voxel RVE generation for QSGS vs voxel-method comparison.",
+  "defaults": {
+    "rve_size_um_xyz": [40.0, 40.0, 40.0],
+    "grid_shape_xyz": [64, 64, 64],
+    "target_porosity": 0.10,
+    "seed": 20260609,
+    "parameters": {}
+  },
+  "outputs": {
+    "array_dir": "data/processed/rve/voxel_minimal",
+    "metadata_dir": "data/metadata/rve/voxel_minimal",
+    "figure_dir": "results/figures/rve_preview",
+    "log_dir": "results/logs/rve_generation"
+  },
+  "cases": [
+    {
+      "case_id": "simple_random_p10_seed20260609",
+      "method": "simple_random"
+    },
+    {
+      "case_id": "anisotropic_correlated_p10_seed20260609",
+      "method": "anisotropic_correlated",
+      "parameters": {
+        "correlation_length_um_xyz": [1.5, 1.5, 5.0],
+        "boundary_mode": "periodic_wrap",
+        "threshold_rule": "exact_lowest_fraction"
+      }
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "model_id": "tbc_wedge_crack_local_v1",
+  "description": "Local four-phase TBC model with one parameterized wedge-shaped crack in the YSZ layer.",
+  "units": "um",
+  "voxel_size_um": 1.0,
+  "domain_um": {
+    "x": 3200.0,
+    "y": 101.0,
+    "z": 1450.0
+  },
+  "layers": [
+    {
+      "name": "Inconel substrate",
+      "phase": "inconel",
+      "label": 3,
+      "thickness_um": 1000.0
+    },
+    {
+      "name": "MCrAlY bond coat",
+      "phase": "mcraly",
+      "label": 2,
+      "thickness_um": 150.0
+    },
+    {
+      "name": "YSZ ceramic top coat",
+      "phase": "ysz",
+      "label": 1,
+      "thickness_um": 300.0
+    }
+  ],
+  "crack": {
+    "phase": "crack_air",
+    "label": 0,
+    "count": 1,
+    "length_um": 3000.0,
+    "top_width_um": 30.0,
+    "bottom_width_um": 5.0,
+    "depth_um": 240.0,
+    "ceramic_ligament_to_bondcoat_um": 60.0,
+    "center_x_um": 1600.0,
+    "center_y_um": 0.0,
+    "starts_from_top_surface": true
+  },
+  "outputs": {
+    "array_dir": "data/processed/tbc_wedge_crack_local_v1",
+    "metadata_dir": "data/metadata",
+    "figure_dir": "results/figures",
+    "log_dir": "results/logs"
+  },
+  "notes": [
+    "The y-domain is 101 um, not 100 um, so the 5 um crack bottom can be represented by exactly 5 centered 1 um voxels.",
+    "The voxel label volume is for geometry definition, checks, morphology, and visualization; COMSOL should build a continuous parametric geometry and generate an adaptive FE mesh for mechanics.",
+    "The wedge included angle derived from widths and depth is recorded in metadata and should be checked against the advisor note that mentions about 8.5 degrees."
+  ]
+}

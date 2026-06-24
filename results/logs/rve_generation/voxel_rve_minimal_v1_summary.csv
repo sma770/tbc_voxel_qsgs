@@ -1,0 +1,3 @@
+case_id,method,seed,target_porosity,actual_porosity,grid_shape_xyz,rve_size_um_xyz,runtime_seconds,array_path,metadata_path
+simple_random_p10_seed20260609,simple_random,20260609,0.1,0.09999847412109375,"[64, 64, 64]","[40.0, 40.0, 40.0]",0.004015,data/processed/rve/voxel_minimal/simple_random/simple_random_p10_seed20260609.npz,data/metadata/rve/voxel_minimal/simple_random/simple_random_p10_seed20260609_metadata.json
+anisotropic_correlated_p10_seed20260609,anisotropic_correlated,20260609,0.1,0.09999847412109375,"[64, 64, 64]","[40.0, 40.0, 40.0]",0.010124,data/processed/rve/voxel_minimal/anisotropic_correlated/anisotropic_correlated_p10_seed20260609.npz,data/metadata/rve/voxel_minimal/anisotropic_correlated/anisotropic_correlated_p10_seed20260609_metadata.json

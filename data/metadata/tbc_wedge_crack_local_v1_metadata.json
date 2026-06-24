@@ -1,0 +1,131 @@
+{
+  "model_id": "tbc_wedge_crack_local_v1",
+  "generated_at_utc": "2026-06-08T06:55:00.333599+00:00",
+  "config_path": "configs/tbc_wedge_crack_local_v1.json",
+  "array_path": "data/processed/tbc_wedge_crack_local_v1/tbc_wedge_crack_local_v1_labels_zyx_uint8.npy",
+  "array_shape_zyx": [
+    1450,
+    101,
+    3200
+  ],
+  "dtype": "uint8",
+  "voxel_size_um": 1.0,
+  "domain_um_actual": {
+    "x": 3200.0,
+    "y": 101.0,
+    "z": 1450.0
+  },
+  "layer_voxels": [
+    {
+      "name": "Inconel substrate",
+      "phase": "inconel",
+      "label": 3,
+      "z_start": 0,
+      "z_stop": 1000,
+      "thickness_voxels": 1000
+    },
+    {
+      "name": "MCrAlY bond coat",
+      "phase": "mcraly",
+      "label": 2,
+      "z_start": 1000,
+      "z_stop": 1150,
+      "thickness_voxels": 150
+    },
+    {
+      "name": "YSZ ceramic top coat",
+      "phase": "ysz",
+      "label": 1,
+      "z_start": 1150,
+      "z_stop": 1450,
+      "thickness_voxels": 300
+    }
+  ],
+  "phase_labels": {
+    "0": "crack/air",
+    "1": "YSZ ceramic",
+    "2": "MCrAlY bond coat",
+    "3": "Inconel substrate"
+  },
+  "phase_counts": {
+    "0": 12600000,
+    "1": 84360000,
+    "2": 48480000,
+    "3": 323200000
+  },
+  "phase_volume_fractions": {
+    "0": 0.02688630932058723,
+    "1": 0.1800102424035507,
+    "2": 0.10344827586206896,
+    "3": 0.6896551724137931
+  },
+  "crack": {
+    "x_voxel_range": [
+      100,
+      3100
+    ],
+    "z_voxel_range": [
+      1210,
+      1450
+    ],
+    "length_voxels": 3000,
+    "top_width_voxels": 30,
+    "bottom_width_voxels": 5,
+    "depth_voxels": 240,
+    "included_angle_from_widths_deg": 5.962922439964384,
+    "sidewall_angle_from_vertical_deg": 2.981461219982192,
+    "widths_by_depth_voxels_unique": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30
+    ]
+  },
+  "geometry_checks": {
+    "top_width_voxels_expected": 30,
+    "top_width_voxels_actual": 30,
+    "bottom_width_voxels_expected": 5,
+    "bottom_width_voxels_actual": 5,
+    "depth_voxels_expected": 240,
+    "depth_voxels_actual": 240,
+    "length_voxels_expected": 3000,
+    "length_voxels_actual_at_top_centerline": 3000,
+    "crack_voxels_below_bondcoat_top_expected": 0,
+    "crack_voxels_below_bondcoat_top_actual": 0,
+    "passed": true
+  },
+  "runtime_seconds": 2.7392296999460086,
+  "reproducibility": {
+    "random_seed": null,
+    "deterministic": true,
+    "generation_method": "parameterized geometric voxelization"
+  },
+  "mechanics_note": "Use this voxel volume for structure definition and checks. For COMSOL mechanics, build the equivalent continuous parametric geometry and let COMSOL create an adaptive FE mesh.",
+  "figure_paths": [
+    "results/figures/tbc_wedge_crack_local_v1_sections.png",
+    "results/figures/tbc_wedge_crack_local_v1_geometry_preview.png"
+  ],
+  "summary_log_path": "results/logs/tbc_wedge_crack_local_v1_generation_summary.txt"
+}
