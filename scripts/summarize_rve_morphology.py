@@ -1,0 +1,91 @@
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+import sys
+
+import numpy as np
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+SRC_PATH = REPO_ROOT / "src"
+if str(SRC_PATH) not in sys.path:
+    sys.path.insert(0, str(SRC_PATH))
+
+from tbc_voxel_qsgs.metrics import compute_porosity
+from tbc_voxel_qsgs.rve import load_rve_npz
+
+
+def _metadata_get(metadata, key: str):
+    if isinstance(metadata, dict):
+        return metadata.get(key)
+    return getattr(metadata, key, None)
+
+
+def _as_json_list(value):
+    if value is None:
+        return None
+    return [float(item) if isinstance(item, float) else int(item) for item in value]
+
+
+def summarize_rve(input_path: Path) -> dict:
+    rve, metadata = load_rve_npz(input_path)
+    if rve.ndim != 3:
+        raise ValueError("RVE array must be 3D.")
+    if not np.isin(rve, [0, 1]).all():
+        raise ValueError("RVE array values must be binary: 0 for pore, 1 for solid.")
+
+    total_voxel_count = int(rve.size)
+    pore_voxel_count = int(np.count_nonzero(rve == 0))
+    solid_voxel_count = int(np.count_nonzero(rve == 1))
+    actual_porosity = float(compute_porosity(rve))
+    solid_fraction = float(solid_voxel_count / total_voxel_count)
+
+    summary = {
+        "voxel_shape": [int(value) for value in rve.shape],
+        "actual_porosity": actual_porosity,
+        "solid_fraction": solid_fraction,
+        "total_voxel_count": total_voxel_count,
+        "pore_voxel_count": pore_voxel_count,
+        "solid_voxel_count": solid_voxel_count,
+    }
+
+    for key in ("method", "seed", "target_porosity"):
+        value = _metadata_get(metadata, key)
+        if value is not None:
+            summary[key] = value
+
+    physical_size_um = _metadata_get(metadata, "physical_size_um")
+    if physical_size_um is not None:
+        summary["physical_size_um"] = _as_json_list(physical_size_um)
+
+    return summary
+
+
+def write_summary(summary: dict, output_path: Path) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Write a minimal RVE morphology summary JSON.")
+    parser.add_argument("--input", required=True, type=Path)
+    parser.add_argument("--out", required=True, type=Path)
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    summary = summarize_rve(args.input)
+    write_summary(summary, args.out)
+
+    print(f"input: {args.input}")
+    print(f"output: {args.out}")
+    print(f"voxel_shape: {tuple(summary['voxel_shape'])}")
+    print(f"actual_porosity: {summary['actual_porosity']}")
+    print(f"solid_fraction: {summary['solid_fraction']}")
+
+
+if __name__ == "__main__":
+    main()

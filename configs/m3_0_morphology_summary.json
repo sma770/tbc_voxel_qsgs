@@ -1,0 +1,14 @@
+{
+  "input_rve_npz": null,
+  "output_summary_json": null,
+  "metrics": [
+    "voxel_shape",
+    "physical_size_um",
+    "target_porosity",
+    "actual_porosity",
+    "solid_fraction",
+    "pore_voxel_count",
+    "solid_voxel_count",
+    "total_voxel_count"
+  ]
+}
