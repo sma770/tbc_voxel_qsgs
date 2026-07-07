@@ -1,0 +1,7 @@
+{
+  "method": "manual_smoke_rve",
+  "target_porosity": 0.25,
+  "seed": 1,
+  "voxel_shape": [4, 4, 4],
+  "physical_size_um": [40.0, 40.0, 40.0]
+}
