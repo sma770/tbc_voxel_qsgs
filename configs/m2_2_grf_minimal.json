@@ -1,0 +1,8 @@
+{
+  "method": "anisotropic_grf_minimal",
+  "target_porosity": 0.10,
+  "seed": 1,
+  "voxel_shape": [16, 16, 16],
+  "physical_size_um": [40.0, 40.0, 40.0],
+  "correlation_lengths_um": [2.0, 2.0, 10.0]
+}
