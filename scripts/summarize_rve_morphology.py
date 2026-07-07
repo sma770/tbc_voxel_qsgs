@@ -14,6 +14,7 @@ if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 from tbc_voxel_qsgs.metrics import compute_porosity
+from tbc_voxel_qsgs.connectivity import compute_pore_connectivity
 from tbc_voxel_qsgs.rve import load_rve_npz
 
 
@@ -41,6 +42,9 @@ def summarize_rve(input_path: Path) -> dict:
     solid_voxel_count = int(np.count_nonzero(rve == 1))
     actual_porosity = float(compute_porosity(rve))
     solid_fraction = float(solid_voxel_count / total_voxel_count)
+    connectivity = compute_pore_connectivity(rve)
+    if connectivity["pore_voxel_count"] != pore_voxel_count:
+        raise ValueError("Connectivity pore_voxel_count does not match basic summary.")
 
     summary = {
         "voxel_shape": [int(value) for value in rve.shape],
@@ -50,6 +54,15 @@ def summarize_rve(input_path: Path) -> dict:
         "pore_voxel_count": pore_voxel_count,
         "solid_voxel_count": solid_voxel_count,
     }
+    for key in (
+        "num_pore_clusters",
+        "largest_pore_cluster_voxel_count",
+        "largest_pore_cluster_fraction_of_pores",
+        "percolates_x",
+        "percolates_y",
+        "percolates_z",
+    ):
+        summary[key] = connectivity[key]
 
     for key in ("method", "seed", "target_porosity"):
         value = _metadata_get(metadata, key)
@@ -85,6 +98,10 @@ def main() -> None:
     print(f"voxel_shape: {tuple(summary['voxel_shape'])}")
     print(f"actual_porosity: {summary['actual_porosity']}")
     print(f"solid_fraction: {summary['solid_fraction']}")
+    print(f"num_pore_clusters: {summary['num_pore_clusters']}")
+    print(f"percolates_x: {summary['percolates_x']}")
+    print(f"percolates_y: {summary['percolates_y']}")
+    print(f"percolates_z: {summary['percolates_z']}")
 
 
 if __name__ == "__main__":
