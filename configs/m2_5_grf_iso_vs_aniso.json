@@ -1,0 +1,17 @@
+{
+  "method": "grf_iso_vs_aniso_smoke",
+  "target_porosity": 0.10,
+  "seed": 1,
+  "voxel_shape": [32, 32, 32],
+  "physical_size_um": [40.0, 40.0, 40.0],
+  "cases": [
+    {
+      "name": "isotropic",
+      "correlation_lengths_um": [2.0, 2.0, 2.0]
+    },
+    {
+      "name": "anisotropic_z",
+      "correlation_lengths_um": [2.0, 2.0, 10.0]
+    }
+  ]
+}
