@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+"""M2-3：GRF RVE IO smoke workflow。
+
+用途：把 minimal Anisotropic GRF generator 接入 RVE .npz 保存/读取流程。
+输入：JSON config，包含 voxel_shape、target_porosity、correlation_lengths_um 等。
+输出：用户通过 --out 指定的 .npz；这是 smoke test 产物，不是论文结果。
+注意：correlation_lengths_um 是 GRF 参数，当前用额外 JSON 字段写入 .npz 供 smoke 检查。
+"""
+
 import argparse
 import json
 from pathlib import Path
@@ -18,12 +26,15 @@ from tbc_voxel_qsgs.metrics import compute_porosity
 from tbc_voxel_qsgs.rve import RVEMetadata, load_rve_npz, save_rve_npz
 
 
+# 读取 GRF smoke config；GRF 相关参数优先在 config 文件中修改。
 def load_config(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as file:
         return json.load(file)
 
 
 def _write_grf_metadata(path: Path, correlation_lengths_um: tuple[float, float, float]) -> None:
+    # M2-3 为了记录 correlation_lengths_um，额外写入 grf_metadata_json。
+    # 这里没有修改 RVE 标准 metadata schema。
     with np.load(path, allow_pickle=False) as data:
         payload = {name: data[name] for name in data.files}
 
@@ -38,6 +49,7 @@ def _write_grf_metadata(path: Path, correlation_lengths_um: tuple[float, float, 
 
 
 def read_grf_metadata(path: Path) -> dict:
+    # 读取 M2-3 额外记录的 GRF 参数；没有该字段时返回空 dict。
     with np.load(path, allow_pickle=False) as data:
         if "grf_metadata_json" not in data.files:
             return {}
@@ -45,6 +57,7 @@ def read_grf_metadata(path: Path) -> dict:
 
 
 def run_smoke(config_path: Path, output_path: Path):
+    # 串起 GRF workflow：config -> GRF RVE -> porosity -> save/load -> metadata。
     config = load_config(config_path)
     correlation_lengths_um = tuple(float(value) for value in config["correlation_lengths_um"])
 
@@ -74,6 +87,7 @@ def run_smoke(config_path: Path, output_path: Path):
 
 
 def parse_args() -> argparse.Namespace:
+    # 命令行参数：--config 指定 GRF 参数 JSON，--out 指定输出 .npz。
     parser = argparse.ArgumentParser(description="Run the M2-3 GRF RVE IO smoke workflow.")
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)

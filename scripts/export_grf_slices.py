@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+"""M2-4：GRF 中间切片 SVG sanity check。
+
+用途：生成一个 GRF RVE，并导出 xy/xz/yz 三个中间切片用于肉眼检查。
+输入：JSON config，包含 GRF 参数。
+输出：--out-dir 中的 3 个 SVG；这些 SVG 只是 sanity check，不是论文图。
+相约定：SVG 中 black = pore phase 0，white = solid phase 1。
+"""
+
 import argparse
 import json
 from pathlib import Path
@@ -17,12 +25,14 @@ from tbc_voxel_qsgs.grf import generate_anisotropic_grf_rve
 from tbc_voxel_qsgs.metrics import compute_porosity
 
 
+# 读取 GRF slice config；target_porosity、correlation_lengths_um 在 config 中修改。
 def _load_config(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as file:
         return json.load(file)
 
 
 def _middle_slices(rve: np.ndarray) -> dict[str, np.ndarray]:
+    # 提取三个中间切片：xy at z=nz//2，xz at y=ny//2，yz at x=nx//2。
     nx, ny, nz = rve.shape
     return {
         "slice_xy.svg": rve[:, :, nz // 2],
@@ -32,6 +42,8 @@ def _middle_slices(rve: np.ndarray) -> dict[str, np.ndarray]:
 
 
 def _write_binary_slice_svg(path: Path, binary_slice: np.ndarray, cell_size: int = 8) -> None:
+    # 修改提示：cell_size 控制 SVG 中每个 voxel 方块的像素大小。
+    # 修改提示：fill 的 black/white 控制 pore/solid 的显示颜色。
     rows, cols = binary_slice.shape
     width = cols * cell_size
     height = rows * cell_size
@@ -52,6 +64,7 @@ def _write_binary_slice_svg(path: Path, binary_slice: np.ndarray, cell_size: int
 
 
 def export_slices(config_path: Path, output_dir: Path) -> tuple[float, list[str], dict]:
+    # 生成 RVE、计算实际孔隙率，并把三个中间切片写成 SVG。
     config = _load_config(config_path)
     rve = generate_anisotropic_grf_rve(
         voxel_shape=config["voxel_shape"],
@@ -72,6 +85,7 @@ def export_slices(config_path: Path, output_dir: Path) -> tuple[float, list[str]
 
 
 def parse_args() -> argparse.Namespace:
+    # 命令行参数：--config 指定输入 JSON，--out-dir 指定 SVG 输出目录。
     parser = argparse.ArgumentParser(description="Export M2-4 GRF middle-slice SVG sanity checks.")
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--out-dir", required=True, type=Path)

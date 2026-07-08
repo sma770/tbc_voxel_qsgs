@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+"""QSGS-2.5：QSGS RVE interactive 3D preview。
+
+用途：读取已保存的 QSGS RVE .npz，并导出可旋转缩放的 HTML 体素预览。
+输入：--input 指定的 .npz；本脚本不读取 QSGS config，也不重新生成 RVE。
+输出：--out-html 指定的 HTML；这是 visual sanity check，不是 paper figure。
+显示：默认显示 pore phase 0，可用 --phase solid 显示 solid phase 1。
+"""
+
 import argparse
 from pathlib import Path
 import sys
@@ -15,6 +23,7 @@ if str(SRC_PATH) not in sys.path:
 from tbc_voxel_qsgs.rve import load_rve_npz
 
 
+# 校验输入 RVE：必须是 3D binary array，且遵循 0=pore、1=solid。
 def _validate_binary_3d(array: np.ndarray) -> np.ndarray:
     if array.ndim != 3:
         raise ValueError("RVE array must be 3D.")
@@ -24,11 +33,13 @@ def _validate_binary_3d(array: np.ndarray) -> np.ndarray:
 
 
 def _get_selected_voxel_indices(array: np.ndarray, phase: str) -> np.ndarray:
+    # --phase 控制显示哪一相：pore 显示 0，solid 显示 1。
     phase_value = 0 if phase == "pore" else 1
     return np.argwhere(array == phase_value)
 
 
 def _downsample_voxels(voxels: np.ndarray, max_points: int) -> tuple[np.ndarray, bool]:
+    # --max-points 控制最多参与 mesh 渲染的 voxel 数，不改变原始 RVE 数据。
     if len(voxels) <= max_points:
         return voxels, False
     # Change the deterministic seed or sampling policy here if dense previews need
@@ -109,6 +120,7 @@ def _cube_trace(go, faces: list[tuple[tuple[int, int, int], ...]], phase: str):
 def _write_plotly_html(
     faces: list[tuple[tuple[int, int, int], ...]], phase: str, output_html: Path
 ) -> None:
+    # Plotly 只在实际生成 HTML 时延迟导入，避免把它写入项目硬依赖。
     try:
         import plotly.graph_objects as go
     except ImportError as exc:
@@ -132,6 +144,7 @@ def _write_plotly_html(
 
 
 def _positive_int(value: str) -> int:
+    # 校验 --max-points，必须是正整数。
     try:
         parsed = int(value)
     except ValueError as exc:
@@ -142,6 +155,7 @@ def _positive_int(value: str) -> int:
 
 
 def build_preview(input_npz: Path, output_html: Path, phase: str, max_points: int) -> dict:
+    # 主流程：load .npz -> 选择相 -> 可复现下采样 -> 外露面 mesh -> 写 HTML。
     rve, _ = load_rve_npz(input_npz)
     rve = _validate_binary_3d(rve)
     selected_voxels = _get_selected_voxel_indices(rve, phase)
@@ -164,6 +178,9 @@ def build_preview(input_npz: Path, output_html: Path, phase: str, max_points: in
 
 
 def parse_args() -> argparse.Namespace:
+    # 命令行参数：
+    # --input 读取 .npz；--out-html 写 HTML；
+    # --phase 选择 pore/solid；--max-points 控制 HTML 规模。
     parser = argparse.ArgumentParser(description="Create a local interactive 3D QSGS RVE preview.")
     parser.add_argument("--input", required=True, type=Path)
     parser.add_argument("--out-html", required=True, type=Path)

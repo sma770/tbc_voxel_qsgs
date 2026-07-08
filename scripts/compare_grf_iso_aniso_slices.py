@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+"""M2-5：isotropic vs anisotropic GRF 切片对比 smoke experiment。
+
+用途：固定两组 correlation_lengths_um，导出两组 RVE 的 xy/xz/yz SVG 切片。
+输入：JSON config，包含全局 seed/shape/porosity 和 cases。
+输出：--out-dir 中的 6 个 SVG；只用于 visual sanity check，不是论文图。
+注意：脚本只输出数据和文件名，不给出“哪种更好”的科学结论。
+"""
+
 import argparse
 import json
 from pathlib import Path
@@ -17,12 +25,14 @@ from tbc_voxel_qsgs.grf import generate_anisotropic_grf_rve
 from tbc_voxel_qsgs.metrics import compute_porosity
 
 
+# 读取两组 GRF case 的对比 config。
 def _load_config(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as file:
         return json.load(file)
 
 
 def _middle_slices(rve: np.ndarray) -> dict[str, np.ndarray]:
+    # 统一提取中间 xy/xz/yz 切片，保证两个 case 的切片位置一致。
     nx, ny, nz = rve.shape
     return {
         "xy": rve[:, :, nz // 2],
@@ -32,6 +42,7 @@ def _middle_slices(rve: np.ndarray) -> dict[str, np.ndarray]:
 
 
 def _write_binary_slice_svg(path: Path, binary_slice: np.ndarray, cell_size: int = 8) -> None:
+    # 修改提示：cell_size 控制 SVG 方块大小；fill 控制 pore/solid 黑白颜色。
     rows, cols = binary_slice.shape
     width = cols * cell_size
     height = rows * cell_size
@@ -52,6 +63,8 @@ def _write_binary_slice_svg(path: Path, binary_slice: np.ndarray, cell_size: int
 
 
 def _export_case_slices(config: dict, case: dict, output_dir: Path) -> dict:
+    # 对单个 case 生成 RVE 并输出三张 SVG。
+    # 文件名规则：{case_name}_slice_{plane}.svg。
     rve = generate_anisotropic_grf_rve(
         voxel_shape=config["voxel_shape"],
         target_porosity=config["target_porosity"],
@@ -77,12 +90,14 @@ def _export_case_slices(config: dict, case: dict, output_dir: Path) -> dict:
 
 
 def run_comparison(config_path: Path, output_dir: Path) -> list[dict]:
+    # 依次处理 config["cases"] 中的 isotropic / anisotropic_z 等固定 case。
     config = _load_config(config_path)
     output_dir.mkdir(parents=True, exist_ok=True)
     return [_export_case_slices(config, case, output_dir) for case in config["cases"]]
 
 
 def parse_args() -> argparse.Namespace:
+    # 命令行参数：--config 指定 case config，--out-dir 指定 SVG 输出目录。
     parser = argparse.ArgumentParser(description="Export M2-5 isotropic vs anisotropic GRF slice SVGs.")
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--out-dir", required=True, type=Path)

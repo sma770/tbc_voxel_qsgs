@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+"""M3-0/M3-2：RVE morphology summary workflow。
+
+用途：读取已有 RVE .npz，输出基础体素统计、孔隙率和 pore connectivity JSON summary。
+输入：--input 指定的 RVE .npz。
+输出：--out 指定的 JSON summary；这是最小形貌统计，不是论文级高级指标。
+相约定：0 = pore phase，1 = solid 8YSZ phase。
+"""
+
 import argparse
 import json
 from pathlib import Path
@@ -18,6 +26,7 @@ from tbc_voxel_qsgs.connectivity import compute_pore_connectivity
 from tbc_voxel_qsgs.rve import load_rve_npz
 
 
+# 兼容 dataclass metadata 和 dict metadata，避免重做 metadata 系统。
 def _metadata_get(metadata, key: str):
     if isinstance(metadata, dict):
         return metadata.get(key)
@@ -25,12 +34,14 @@ def _metadata_get(metadata, key: str):
 
 
 def _as_json_list(value):
+    # JSON 不直接支持 tuple / NumPy scalar，这里转成普通 Python list。
     if value is None:
         return None
     return [float(item) if isinstance(item, float) else int(item) for item in value]
 
 
 def summarize_rve(input_path: Path) -> dict:
+    # 主流程：load .npz -> 校验 binary 3D -> 计算 counts/porosity/connectivity。
     rve, metadata = load_rve_npz(input_path)
     if rve.ndim != 3:
         raise ValueError("RVE array must be 3D.")
@@ -44,6 +55,7 @@ def summarize_rve(input_path: Path) -> dict:
     solid_fraction = float(solid_voxel_count / total_voxel_count)
     connectivity = compute_pore_connectivity(rve)
     if connectivity["pore_voxel_count"] != pore_voxel_count:
+        # 保护性检查：避免 summary 中出现两个互相矛盾的 pore_voxel_count。
         raise ValueError("Connectivity pore_voxel_count does not match basic summary.")
 
     summary = {
@@ -77,11 +89,13 @@ def summarize_rve(input_path: Path) -> dict:
 
 
 def write_summary(summary: dict, output_path: Path) -> None:
+    # 写出 indent=2 的 JSON，方便人工检查。
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
 
 
 def parse_args() -> argparse.Namespace:
+    # 命令行参数：--input 读取 .npz，--out 写出 JSON。
     parser = argparse.ArgumentParser(description="Write a minimal RVE morphology summary JSON.")
     parser.add_argument("--input", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)

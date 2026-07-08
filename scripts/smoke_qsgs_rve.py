@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+"""QSGS-2：QSGS RVE smoke workflow + SVG slice sanity check。
+
+用途：把 QSGS-1 generator 接入 RVE .npz IO，并导出 xy/xz/yz 中间切片 SVG。
+输入：QSGS JSON config，包含 target_porosity、core_probability、D1-D26 等。
+输出：--out 指定的 .npz 和 --slice-dir 中的 3 个 SVG；这些只是 sanity check。
+注意：本脚本不声称完整复现原文 QSGS，不实现 Pirm/AHM/PBC。
+"""
+
 import argparse
 import json
 from pathlib import Path
@@ -18,12 +26,14 @@ from tbc_voxel_qsgs.qsgs import generate_qsgs_rve
 from tbc_voxel_qsgs.rve import RVEMetadata, load_rve_npz, save_rve_npz
 
 
+# 读取 QSGS config；孔隙率、Pc、D1-D26、max_iterations 都在 config 中修改。
 def _load_config(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as file:
         return json.load(file)
 
 
 def _metadata_from_config(config: dict, actual_porosity: float) -> RVEMetadata:
+    # 只写入 RVEMetadata 支持的通用字段，不把 QSGS 参数塞进 .npz metadata。
     return RVEMetadata(
         method=config["method"],
         target_porosity=float(config["target_porosity"]),
@@ -35,6 +45,7 @@ def _metadata_from_config(config: dict, actual_porosity: float) -> RVEMetadata:
 
 
 def _middle_slices(rve: np.ndarray) -> dict[str, np.ndarray]:
+    # 提取 QSGS RVE 的三个中间切片用于快速肉眼检查。
     nx, ny, nz = rve.shape
     return {
         "qsgs_slice_xy.svg": rve[:, :, nz // 2],
@@ -44,6 +55,7 @@ def _middle_slices(rve: np.ndarray) -> dict[str, np.ndarray]:
 
 
 def _write_binary_slice_svg(path: Path, binary_slice: np.ndarray, cell_size: int = 8) -> None:
+    # 修改提示：cell_size 控制 SVG voxel 方块大小；black=pore，white=solid。
     rows, cols = binary_slice.shape
     width = cols * cell_size
     height = rows * cell_size
@@ -64,6 +76,7 @@ def _write_binary_slice_svg(path: Path, binary_slice: np.ndarray, cell_size: int
 
 
 def run_smoke(config_path: Path, output_path: Path, slice_dir: Path):
+    # 主流程：config -> QSGS RVE -> porosity -> save/load .npz -> export slices。
     config = _load_config(config_path)
     rve = generate_qsgs_rve(
         voxel_shape=config["voxel_shape"],
@@ -89,6 +102,7 @@ def run_smoke(config_path: Path, output_path: Path, slice_dir: Path):
 
 
 def parse_args() -> argparse.Namespace:
+    # 命令行参数：--config 为 QSGS 配置，--out 为 .npz，--slice-dir 为 SVG 目录。
     parser = argparse.ArgumentParser(description="Run QSGS-2 RVE IO and slice SVG smoke workflow.")
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
